@@ -32,24 +32,37 @@ app.get("/", (req, res) => {
   }
 });
 app.post("/", async (req, res) => {
-  const data = req.body;
-  const URL = "https://server.reverr.io";
-  logger.log("data", data);
   try {
+    const data = req.body;
+    // const URL = "https://whatsapp-api-alg6.onrender.com"; // Change this URL to the appropriate webhook URL
     if (data) {
-      logger.log(data);
+      logger.log("Received request body:", data);
+      logger.log("Payload:", data.jsonPayload)
+      logger.log("Entry:", data?.entry)
+      logger.log("Changes:", data?.entry[0]?.changes)
+      const changes = data.entry[0]?.changes[0];
+      logger.log("changes", changes);
+
       if (
-        data.jsonPayload?.entry[0]?.changes[0]?.value.messages[0]?.type == "text"
+        changes &&
+        changes.field === "messages" &&
+        changes.value.messages[0].type === "text"
       ) {
-        const response = await axios.post(`${URL}/webhook`, {
-          payload: data,
+        const messageBody = changes.value.messages[0].text.body;
+        logger.log("Received text message:", messageBody);
+
+        const response = await axios.post("https://whatsapp-api-alg6.onrender.com/api/webhook", {
+          payload: data
         });
+
+        logger.log("Webhook response:", response.data);
         res.sendStatus(200);
-      }else{
+      } else {
+        logger.log("No Text Data or Invalid Field");
         res.sendStatus(200);
       }
-      // res.sendStatus(200);
     } else {
+      logger.log("No Valid Data");
       res.sendStatus(403);
     }
   } catch (error) {
