@@ -37,11 +37,8 @@ app.post("/", async (req, res) => {
     // const URL = "https://whatsapp-api-alg6.onrender.com"; // Change this URL to the appropriate webhook URL
     if (data) {
       logger.log("Received request body:", data);
-      logger.log("Payload:", data.jsonPayload)
-      logger.log("Entry:", data?.entry)
-      logger.log("Changes:", data?.entry[0]?.changes)
+      logger.log("Changes:", data?.entry[0]?.changes);
       const changes = data.entry[0]?.changes[0];
-      logger.log("changes", changes);
 
       if (
         changes &&
@@ -51,11 +48,42 @@ app.post("/", async (req, res) => {
         const messageBody = changes.value.messages[0].text.body;
         logger.log("Received text message:", messageBody);
 
-        const response = await axios.post("https://whatsapp-api-alg6.onrender.com/api/webhook", {
-          payload: data
-        });
+        const response = await axios.post(
+          "https://whatsapp-api-alg6.onrender.com/api/webhook",
+          {
+            payload: data,
+          }
+        );
 
-        logger.log("Webhook response:", response.data);
+        res.sendStatus(200);
+      } else if (
+        changes &&
+        changes.field === "messages" &&
+        changes.value.messages[0].type === "image"
+      ) {
+        const messageBody = changes.value.messages[0].text.body;
+        logger.log("Received text message:", messageBody);
+
+        const response = await axios.post(
+          "https://whatsapp-api-alg6.onrender.com/api/webhook",
+          {
+            payload: data,
+          }
+        );
+        res.sendStatus(200);
+      } else if (
+        changes &&
+        changes.field === "messages" &&
+        changes.value.messages[0].type === "sticker"
+      ) {
+        const messageBody = changes.value.messages[0].text.body;
+        logger.log("Received text message:", messageBody);
+        const response = await axios.post(
+          "https://whatsapp-api-alg6.onrender.com/api/webhook",
+          {
+            payload: data,
+          }
+        );
         res.sendStatus(200);
       } else {
         logger.log("No Text Data or Invalid Field");
