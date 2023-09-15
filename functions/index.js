@@ -76,8 +76,30 @@ app.post("/", async (req, res) => {
         changes.field === "messages" &&
         changes.value.messages[0].type === "sticker"
       ) {
-        const messageBody = changes.value.messages[0].text.body;
-        logger.log("Received text message:", messageBody);
+        const response = await axios.post(
+          "https://whatsapp-api-alg6.onrender.com/api/webhook",
+          {
+            payload: data,
+          }
+        );
+        res.sendStatus(200);
+      }else if (
+        changes &&
+        changes.field === "messages" &&
+        changes.value.messages[0].type === "video"
+      ) {
+        const response = await axios.post(
+          "https://whatsapp-api-alg6.onrender.com/api/webhook",
+          {
+            payload: data,
+          }
+        );
+        res.sendStatus(200);
+      }else if (
+        changes &&
+        changes.field === "messages" &&
+        changes.value.messages[0].type === "audio"
+      ) {
         const response = await axios.post(
           "https://whatsapp-api-alg6.onrender.com/api/webhook",
           {
